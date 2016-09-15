@@ -7,8 +7,21 @@
 //
 
 #import "PragmaMark.h"
+#import "JTTTextResult.h"
+#import "NSTextView+JTTTextGetter.h"
+#import "JTTKeyboardEventSender.h"
 
 static PragmaMark *sharedPlugin;
+
+NSString * const PragmaMarkDefaultTriggerString = @"ppp";
+
+NSString * const PragmaMarkDefaultString = @"#pragma mark - Life Cycle\n\n#pragma mark - Private Methods\n\n#pragma mark - Public Methods\n\n#pragma mark - Overrided Methods\n\n#pragma mark - Delegate";
+
+@interface PragmaMark()
+
+@property (nonatomic, strong) id eventMonitor;
+
+@end
 
 @implementation PragmaMark
 
@@ -49,6 +62,104 @@ static PragmaMark *sharedPlugin;
     NSString *version = [self.bundle objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
     NSString *status = [self initialize] ? @"loaded successfully" : @"failed to load";
     NSLog(@"🔌 Plugin %@ %@ %@", name, version, status);
+    
+    [self addNotification];
+}
+
+- (void)dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
+#pragma mark - Notification
+
+- (void)addNotification{
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(textDidChangeNotification:)
+                                                 name:NSTextDidChangeNotification
+                                               object:nil];
+}
+
+- (void)textDidChangeNotification:(NSNotification *)aNotification{
+    NSTextView *textView = [aNotification object];
+    if (![textView isKindOfClass:[NSTextView class]]) return;
+    
+    //获取当前鼠标光标所在行的文字
+    JTTTextResult *currentLineResult = [textView jtt_textResultOfCurrentLine];
+    if (!currentLineResult) {
+        return;
+    }
+    
+    //触发标准字符串
+    NSString *pattern = [NSString stringWithFormat:@"\\s*%@", PragmaMarkDefaultTriggerString];
+    NSError *error = nil;
+    NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:pattern options:NSRegularExpressionAllowCommentsAndWhitespace error:&error];
+    if (error) {
+        return;
+    }
+    NSUInteger matches = [regex numberOfMatchesInString:currentLineResult.string options:0 range:NSMakeRange(0, currentLineResult.string.length)];
+    if (matches <= 0) {
+        return;
+    }
+    
+    //填充PragmaMarkDefaultString
+    //保存当前内容到黏贴板
+    NSPasteboard *pasteBoard = [NSPasteboard generalPasteboard];
+    NSString *originPBString = [pasteBoard stringForType:NSPasteboardTypeString];
+    
+    //将PragmaMarkDefaultString放入
+    [pasteBoard declareTypes:[NSArray arrayWithObject:NSStringPboardType] owner:nil];
+    [pasteBoard setString:PragmaMarkDefaultString forType:NSStringPboardType];
+    
+    //模拟键盘按下
+    JTTKeyboardEventSender *simKeyboard = [[JTTKeyboardEventSender alloc] init];
+    [simKeyboard beginKeyBoradEvents];
+    // Command + delete: 删除本行
+    [simKeyboard sendKeyCode:kVK_Delete withModifierCommand:YES alt:NO shift:NO control:NO];
+    
+    // Command + V, 黏贴 (If it is Dvorak layout, use '.', which is corresponding the key 'V' in a QWERTY layout)
+    NSInteger kKeyVCode = [JTTKeyboardEventSender useDvorakLayout] ? kVK_ANSI_Period : kVK_ANSI_V;
+    [simKeyboard sendKeyCode:kKeyVCode withModifierCommand:YES alt:NO shift:NO control:NO];
+    
+    [simKeyboard sendKeyCode:kVK_Return];
+    [simKeyboard sendKeyCode:kVK_Return];
+    
+    // The key down is just a defined finish signal by me. When we receive this key, we know operation above is finished.
+    [simKeyboard sendKeyCode:kVK_F20];
+    
+    self.eventMonitor = [NSEvent addLocalMonitorForEventsMatchingMask:NSKeyDownMask
+                                                              handler:^NSEvent *(NSEvent *incomingEvent) {
+                                                                  if ([incomingEvent type] == NSKeyDown && [incomingEvent keyCode] == kVK_F20) {
+                                                                      // Finish signal arrived, no need to observe the event
+                                                                      [NSEvent removeMonitor:_eventMonitor];
+                                                                      self.eventMonitor = nil;
+                                                                      
+                                                                      // Restore previois patse board content
+                                                                      [pasteBoard declareTypes:[NSArray arrayWithObject:NSStringPboardType] owner:nil];
+                                                                      [pasteBoard setString:originPBString forType:NSStringPboardType];
+                                                                      
+                                                                      // Set cursor before the inserted magic line. So we can use tab to begin edit.
+                                                                      // int baseIndentationLength = (int)[doc baseIndentation].length;
+                                                                      // [textView setSelectedRange:NSMakeRange(currentLineResult.range.location + baseIndentationLength, 0)];
+                                                                      
+                                                                      // Send a 'tab' after insert the doc. For our lazy programmers. :)
+                                                                      // [kes sendKeyCode:kVK_Tab];
+                                                                      [simKeyboard endKeyBoradEvents];
+                                                                      
+                                                                      // Invalidate the finish signal, in case you set it to do some other thing.
+                                                                      return nil;
+                                                                  }
+                                                                  else if ([incomingEvent type] == NSKeyDown && [incomingEvent keyCode] == kKeyVCode) {
+                                                                      // Select input line and the define code block.
+                                                                      // NSRange r = [textView vv_textResultUntilNextString:@";"].range;
+                                                                      
+                                                                      // NSRange r begins from the starting of enum(struct) line. Select 1 character before to include the trigger input line.
+                                                                      // [textView setSelectedRange:NSMakeRange(r.location - 1, r.length + 1)];
+                                                                      return incomingEvent;
+                                                                  }
+                                                                  else {
+                                                                      return incomingEvent;
+                                                                  }
+                                                              }];
 }
 
 #pragma mark - Implementation
@@ -58,7 +169,7 @@ static PragmaMark *sharedPlugin;
     if (menuItem) {
         [[menuItem submenu] addItem:[NSMenuItem separatorItem]];
         NSMenuItem *actionMenuItem = [[NSMenuItem alloc] initWithTitle:@"Pragma Mark" action:@selector(insertPragmaMark) keyEquivalent:@"P"];
-        [actionMenuItem setKeyEquivalentModifierMask:NSShiftKeyMask];
+        //        [actionMenuItem setKeyEquivalentModifierMask:NSFunctionKeyMask];
         
         [actionMenuItem setTarget:self];
         [[menuItem submenu] addItem:actionMenuItem];
@@ -69,7 +180,6 @@ static PragmaMark *sharedPlugin;
 }
 
 - (void)insertPragmaMark{
-    
 }
 
 @end
