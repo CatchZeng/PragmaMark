@@ -10,16 +10,18 @@
 #import "JTTTextResult.h"
 #import "NSTextView+JTTTextGetter.h"
 #import "JTTKeyboardEventSender.h"
+#import "SettingsViewCtrl.h"
 
 static PragmaMark *sharedPlugin;
 
 NSString * const PragmaMarkDefaultTriggerString = @"ppp";
 
-NSString * const PragmaMarkDefaultString = @"#pragma mark - Life Cycle\n\n#pragma mark - Private Methods\n\n#pragma mark - Public Methods\n\n#pragma mark - Overrided Methods\n\n#pragma mark - Delegate";
+NSString * const PragmaMarkDefaultString = @"#pragma mark - Life Cycle\n\n#pragma mark - Getters & Setters\n\n#pragma mark - Private Methods\n\n#pragma mark - Public Methods\n\n#pragma mark - Overrided Methods\n\n#pragma mark - Delegate";
 
 @interface PragmaMark()
 
 @property (nonatomic, strong) id eventMonitor;
+@property (nonatomic, strong) SettingsViewCtrl* settingsViewCtrl;
 
 @end
 
@@ -40,9 +42,7 @@ NSString * const PragmaMarkDefaultString = @"#pragma mark - Life Cycle\n\n#pragm
 
 - (id)initWithBundle:(NSBundle *)bundle{
     if (self = [super init]) {
-        // reference to plugin's bundle, for resource access
         _bundle = bundle;
-        // NSApp may be nil if the plugin is loaded from the xcodebuild command line tool
         if (NSApp && !NSApp.mainMenu) {
             [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(applicationDidFinishLaunching:) name:NSApplicationDidFinishLaunchingNotification object:nil];
         } else {
@@ -168,10 +168,19 @@ NSString * const PragmaMarkDefaultString = @"#pragma mark - Life Cycle\n\n#pragm
     NSMenuItem *menuItem = [[NSApp mainMenu] itemWithTitle:@"Edit"];
     if (menuItem) {
         [[menuItem submenu] addItem:[NSMenuItem separatorItem]];
-        NSMenuItem *actionMenuItem = [[NSMenuItem alloc] initWithTitle:@"Pragma Mark" action:@selector(insertPragmaMark) keyEquivalent:@"P"];
-        //        [actionMenuItem setKeyEquivalentModifierMask:NSFunctionKeyMask];
         
-        [actionMenuItem setTarget:self];
+        NSMenuItem *actionMenuItem = [[NSMenuItem alloc] initWithTitle:@"Pragma Mark" action:nil keyEquivalent:@""];
+        
+        NSMenuItem *dc_settingMenuItem = [[NSMenuItem alloc] init];
+        dc_settingMenuItem.title  = @"Settings";
+        dc_settingMenuItem.target = self;
+        dc_settingMenuItem.action = @selector(showSettings);
+        
+        NSMenu *settingMenu = [[NSMenu alloc] init];
+        [settingMenu addItem:dc_settingMenuItem];
+        
+        [actionMenuItem setSubmenu:settingMenu];
+        
         [[menuItem submenu] addItem:actionMenuItem];
         return YES;
     } else {
@@ -179,7 +188,15 @@ NSString * const PragmaMarkDefaultString = @"#pragma mark - Life Cycle\n\n#pragm
     }
 }
 
-- (void)insertPragmaMark{
+-(void)showSettings{
+    [self.settingsViewCtrl showWindow:self.settingsViewCtrl];
+}
+
+- (SettingsViewCtrl *)settingsViewCtrl {
+    if(_settingsViewCtrl == nil) {
+        _settingsViewCtrl = [[SettingsViewCtrl alloc] initWithWindowNibName:NSStringFromClass([SettingsViewCtrl class])];
+    }
+    return _settingsViewCtrl;
 }
 
 @end

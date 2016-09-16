@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		C366702E1D86F3D500D62B50 /* PragmaMark.xcscheme in Resources */ = {isa = PBXBuildFile; fileRef = C366702D1D86F3D500D62B50 /* PragmaMark.xcscheme */; };
 		C36670311D86F3D500D62B50 /* PragmaMark.m in Sources */ = {isa = PBXBuildFile; fileRef = C36670301D86F3D500D62B50 /* PragmaMark.m */; };
+		C38575491D8B8E6B00675CB1 /* SettingsViewCtrl.m in Sources */ = {isa = PBXBuildFile; fileRef = C38575471D8B8E6B00675CB1 /* SettingsViewCtrl.m */; };
+		C385754A1D8B8E6B00675CB1 /* SettingsViewCtrl.xib in Resources */ = {isa = PBXBuildFile; fileRef = C38575481D8B8E6B00675CB1 /* SettingsViewCtrl.xib */; };
 		C3C185751D8AE10C00694ABF /* JTTTextResult.m in Sources */ = {isa = PBXBuildFile; fileRef = C3C185701D8AE10C00694ABF /* JTTTextResult.m */; };
 		C3C185761D8AE10C00694ABF /* NSString+JTTTextGetter.m in Sources */ = {isa = PBXBuildFile; fileRef = C3C185721D8AE10C00694ABF /* NSString+JTTTextGetter.m */; };
 		C3C185771D8AE10C00694ABF /* NSTextView+JTTTextGetter.m in Sources */ = {isa = PBXBuildFile; fileRef = C3C185741D8AE10C00694ABF /* NSTextView+JTTTextGetter.m */; };
@@ -21,6 +23,9 @@
 		C366702F1D86F3D500D62B50 /* PragmaMark.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PragmaMark.h; sourceTree = "<group>"; };
 		C36670301D86F3D500D62B50 /* PragmaMark.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PragmaMark.m; sourceTree = "<group>"; };
 		C36670321D86F3D500D62B50 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		C38575461D8B8E6B00675CB1 /* SettingsViewCtrl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SettingsViewCtrl.h; sourceTree = "<group>"; };
+		C38575471D8B8E6B00675CB1 /* SettingsViewCtrl.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SettingsViewCtrl.m; sourceTree = "<group>"; };
+		C38575481D8B8E6B00675CB1 /* SettingsViewCtrl.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = SettingsViewCtrl.xib; sourceTree = "<group>"; };
 		C3C1856F1D8AE10C00694ABF /* JTTTextResult.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JTTTextResult.h; sourceTree = "<group>"; };
 		C3C185701D8AE10C00694ABF /* JTTTextResult.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JTTTextResult.m; sourceTree = "<group>"; };
 		C3C185711D8AE10C00694ABF /* NSString+JTTTextGetter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+JTTTextGetter.h"; sourceTree = "<group>"; };
@@ -51,6 +56,7 @@
 		C366702B1D86F3D500D62B50 /* PragmaMark */ = {
 			isa = PBXGroup;
 			children = (
+				C38575451D8B8E3E00675CB1 /* SettingViewCtrl */,
 				C3C185781D8AE45000694ABF /* Keyboard */,
 				C3C1856E1D8AE10C00694ABF /* Category */,
 				C366702F1D86F3D500D62B50 /* PragmaMark.h */,
@@ -67,6 +73,16 @@
 				C366702D1D86F3D500D62B50 /* PragmaMark.xcscheme */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		C38575451D8B8E3E00675CB1 /* SettingViewCtrl */ = {
+			isa = PBXGroup;
+			children = (
+				C38575461D8B8E6B00675CB1 /* SettingsViewCtrl.h */,
+				C38575471D8B8E6B00675CB1 /* SettingsViewCtrl.m */,
+				C38575481D8B8E6B00675CB1 /* SettingsViewCtrl.xib */,
+			);
+			path = SettingViewCtrl;
 			sourceTree = "<group>";
 		};
 		C3C1856E1D8AE10C00694ABF /* Category */ = {
@@ -146,6 +162,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C385754A1D8B8E6B00675CB1 /* SettingsViewCtrl.xib in Resources */,
 				C366702E1D86F3D500D62B50 /* PragmaMark.xcscheme in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -159,6 +176,7 @@
 			files = (
 				C3C185761D8AE10C00694ABF /* NSString+JTTTextGetter.m in Sources */,
 				C3C1857B1D8AE45000694ABF /* JTTKeyboardEventSender.m in Sources */,
+				C38575491D8B8E6B00675CB1 /* SettingsViewCtrl.m in Sources */,
 				C3C185751D8AE10C00694ABF /* JTTTextResult.m in Sources */,
 				C36670311D86F3D500D62B50 /* PragmaMark.m in Sources */,
 				C3C185771D8AE10C00694ABF /* NSTextView+JTTTextGetter.m in Sources */,
