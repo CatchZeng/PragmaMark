@@ -1,21 +1,21 @@
 //
-//  JTTKeyboardEventSender.m
-//  JTTMagicLine
+//  KeyboardEventSender.m
+//  PragmaMark
 //
-//  Created by Jymn_Chen on 14-9-8.
-//  Copyright (c) 2014年 Jymn_Chen. All rights reserved.
+//  Created by Administrator on 16/9/12.
+//  Copyright © 2016年 catch. All rights reserved.
 //
 
-#import "JTTKeyboardEventSender.h"
+#import "KeyboardEventSender.h"
 
-@interface JTTKeyboardEventSender ()
+@interface KeyboardEventSender ()
 {
     CGEventSourceRef _source;
     CGEventTapLocation _location;
 }
 @end
 
-@implementation JTTKeyboardEventSender
+@implementation KeyboardEventSender
 
 - (void)beginKeyBoradEvents {
     _source     = CGEventSourceCreate(kCGEventSourceStateCombinedSessionState);

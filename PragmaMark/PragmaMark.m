@@ -7,16 +7,15 @@
 //
 
 #import "PragmaMark.h"
-#import "JTTTextResult.h"
-#import "NSTextView+JTTTextGetter.h"
-#import "JTTKeyboardEventSender.h"
+#import "TextResult.h"
+#import "NSTextView+TextGetter.h"
+#import "KeyboardEventSender.h"
 #import "SettingsViewCtrl.h"
+#import "UserDefaultUtil.h"
 
 static PragmaMark *sharedPlugin;
 
-NSString * const PragmaMarkDefaultTriggerString = @"ppp";
-
-NSString * const PragmaMarkDefaultString = @"#pragma mark - Life Cycle\n\n#pragma mark - Getters & Setters\n\n#pragma mark - Private Methods\n\n#pragma mark - Public Methods\n\n#pragma mark - Overrided Methods\n\n#pragma mark - Delegate";
+NSString* const PragmaMarkDefaultTriggerString = @"ppp";
 
 @interface PragmaMark()
 
@@ -63,6 +62,8 @@ NSString * const PragmaMarkDefaultString = @"#pragma mark - Life Cycle\n\n#pragm
     NSString *status = [self initialize] ? @"loaded successfully" : @"failed to load";
     NSLog(@"🔌 Plugin %@ %@ %@", name, version, status);
     
+    [SettingsViewCtrl loadDefaultSettings];
+    
     [self addNotification];
 }
 
@@ -83,8 +84,13 @@ NSString * const PragmaMarkDefaultString = @"#pragma mark - Life Cycle\n\n#pragm
     NSTextView *textView = [aNotification object];
     if (![textView isKindOfClass:[NSTextView class]]) return;
     
+    NSString* pragmaMarkDefaultString = [SettingsViewCtrl loadStrFromSettings];
+    if (!pragmaMarkDefaultString || pragmaMarkDefaultString.length < 1) {
+        return;
+    }
+    
     //获取当前鼠标光标所在行的文字
-    JTTTextResult *currentLineResult = [textView jtt_textResultOfCurrentLine];
+    TextResult *currentLineResult = [textView textResultOfCurrentLine];
     if (!currentLineResult) {
         return;
     }
@@ -108,20 +114,18 @@ NSString * const PragmaMarkDefaultString = @"#pragma mark - Life Cycle\n\n#pragm
     
     //将PragmaMarkDefaultString放入
     [pasteBoard declareTypes:[NSArray arrayWithObject:NSStringPboardType] owner:nil];
-    [pasteBoard setString:PragmaMarkDefaultString forType:NSStringPboardType];
+    [pasteBoard setString:pragmaMarkDefaultString forType:NSStringPboardType];
     
     //模拟键盘按下
-    JTTKeyboardEventSender *simKeyboard = [[JTTKeyboardEventSender alloc] init];
+    KeyboardEventSender *simKeyboard = [[KeyboardEventSender alloc] init];
     [simKeyboard beginKeyBoradEvents];
     // Command + delete: 删除本行
     [simKeyboard sendKeyCode:kVK_Delete withModifierCommand:YES alt:NO shift:NO control:NO];
     
     // Command + V, 黏贴 (If it is Dvorak layout, use '.', which is corresponding the key 'V' in a QWERTY layout)
-    NSInteger kKeyVCode = [JTTKeyboardEventSender useDvorakLayout] ? kVK_ANSI_Period : kVK_ANSI_V;
+    NSInteger kKeyVCode = [KeyboardEventSender useDvorakLayout] ? kVK_ANSI_Period : kVK_ANSI_V;
     [simKeyboard sendKeyCode:kKeyVCode withModifierCommand:YES alt:NO shift:NO control:NO];
-    
-    [simKeyboard sendKeyCode:kVK_Return];
-    [simKeyboard sendKeyCode:kVK_Return];
+    //    [simKeyboard sendKeyCode:kVK_Return];
     
     // The key down is just a defined finish signal by me. When we receive this key, we know operation above is finished.
     [simKeyboard sendKeyCode:kVK_F20];

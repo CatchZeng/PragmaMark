@@ -1,15 +1,15 @@
 //
-//  JTTKeyboardEventSender.h
-//  JTTMagicLine
+//  KeyboardEventSender.h
+//  PragmaMark
 //
-//  Created by Jymn_Chen on 14-9-8.
-//  Copyright (c) 2014年 Jymn_Chen. All rights reserved.
+//  Created by Administrator on 16/9/12.
+//  Copyright © 2016年 catch. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
 #import <Carbon/Carbon.h>
 
-@interface JTTKeyboardEventSender : NSObject
+@interface KeyboardEventSender : NSObject
 
 - (void)beginKeyBoradEvents;
 

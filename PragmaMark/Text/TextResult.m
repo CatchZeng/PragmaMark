@@ -1,14 +1,14 @@
 //
-//  JTTTextResult.m
-//  JTTMagicLine
+//  TextResult.m
+//  PragmaMark
 //
-//  Created by Jymn_Chen on 14-9-8.
-//  Copyright (c) 2014年 Jymn_Chen. All rights reserved.
+//  Created by Administrator on 16/9/12.
+//  Copyright © 2016年 catch. All rights reserved.
 //
 
-#import "JTTTextResult.h"
+#import "TextResult.h"
 
-@implementation JTTTextResult
+@implementation TextResult
 
 - (instancetype)initWithRange:(NSRange)aRange string:(NSString *)aString {
     self = [super init];
